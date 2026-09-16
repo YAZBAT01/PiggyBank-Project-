@@ -31,15 +31,9 @@ paths:
                     content:
                         application/json:
                             schema:
-                                type: object
-                                properties:
-                                    message:
-                                        type: string
-                                        example: Registrazione completata. Controlla la tua email per confermare l'account.
+                                $ref: "#/components/schemas/User"
                 "400":
-                    description: Dati di input non validi o password non conforme.
-                "409":
-                    description: Email già esistente.
+                    description: Qualcosa è andato storto.
 
     /auth/confirm-email:
         get:
@@ -76,7 +70,7 @@ paths:
                         schema:
                             $ref: "#/components/schemas/LoginRequest"
             responses:
-                "200":
+                "201":
                     description: Login effettuato con successo. Restituisce il token JWT e i dati base utente.
                     content:
                         application/json:
@@ -442,7 +436,6 @@ components:
                 fullname:
                     type: string
                     example: "Mario Rossi"
-
         BankAccount:
             type: object
             properties:
@@ -465,18 +458,16 @@ components:
             type: object
             properties:
                 transactionCategoryID:
-                    type: string
-                    pattern: "^[0-9a-fA-F]{24}$"
-                    example: "65f1a2b3c4d5e6f7a8b90125"
-                    description: MongoDB ObjectId (_id)
+                    type: integer
+                    example: 1
                 name:
                     type: string
-                    example: "Bonifico Uscita"
+                    example: "Apertura conto"
                     description: "Apertura Conto, Bonifico Entrata, Bonifico Uscita, Prelievo contanti, Pagamento Utenze, Ricarica, Versamento Bancomat, ecc."
                 type:
                     type: string
                     enum: [Entrata, Uscita]
-                    example: "Uscita"
+                    example: "Entrata"
 
         Transaction:
             type: object
@@ -574,16 +565,11 @@ components:
         LoginResponse:
             type: object
             properties:
+                user:
+                    $ref: "#/components/schemas/User"
                 token:
                     type: string
-                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                fullname:
-                    type: string
-                    example: "Mario Rossi"
-                bankAccountID:
-                    type: string
-                    pattern: "^[0-9a-fA-F]{24}$"
-                    example: "65f1a2b3c4d5e6f7a8b90124"
+                    example: 8TvcVFQEvb3BsVPF_HAy_15Dc1wVOk1dneX4Wq4
 
         ChangePasswordRequest:
             type: object
