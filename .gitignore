@@ -1,0 +1,153 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+*/node_modules/
+**/node_modules/
+jspm_packages/
+
+# =========================
+# Build output
+# =========================
+dist/
+build/
+out/
+tmp/
+temp/
+*/dist/
+*/build/
+
+# Angular specific
+.angular/
+.angular/cache/
+frontend/dist/
+frontend/.angular/
+
+# =========================
+# Environment & config
+# =========================
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+*.env
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =========================
+# Editor / IDE
+# =========================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =========================
+# Testing / Coverage
+# =========================
+coverage/
+*.lcov
+.nyc_output/
+
+# =========================
+# Cache
+# =========================
+.cache/
+.eslintcache
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# =========================
+# Package manager lock (opzionale - scommenta se non vuoi versionarli)
+# =========================
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# Runtime data
+# =========================
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# Express / Node backend
+# =========================
+# Cartelle di upload file (adatta il nome alla tua struttura)
+backend/uploads/
+uploads/
+public/uploads/
+
+# Sessioni salvate su disco (es. connect-session-file, session-file-store)
+sessions/
+backend/sessions/
+
+# Database locali (SQLite) usati in dev
+*.sqlite
+*.sqlite3
+*.db
+
+# PM2 (process manager spesso usato con Express in produzione)
+.pm2/
+ecosystem.config.js.bak
+
+# File di certificati/chiavi generati in locale
+*.pem
+*.key
+*.crt
+!nodemon.json
+
+# Nodemon debug
+nodemon-debug.log
+
+# =========================
+# Misc
+# =========================
+*.tgz
+.history/
+.vercel
+.turbo
