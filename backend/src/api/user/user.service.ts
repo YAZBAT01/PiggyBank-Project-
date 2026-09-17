@@ -24,7 +24,7 @@ export class UserService {
       provider: 'local',
       user: newUser,
       credentials: {
-        username: credentials.email,
+        email: credentials.email,
         hashedPassword,
       },
     });

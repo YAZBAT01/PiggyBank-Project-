@@ -15,6 +15,8 @@ export const register = async (
   try {
     const userData = omit(req.body, 'password', 'confirmPassword');
     const credentials = pick(req.body, 'email', 'password');
+    console.table(credentials);
+    
 
     const newUser = await userSrv.add(userData, credentials);
     res.json(newUser);
