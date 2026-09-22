@@ -99,7 +99,10 @@ ul {
 }
 
 .nav-link.active {
-  background: rgba(255, 255, 255, 0.15);
+  box-sizing: border-box;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  padding: calc(0.75rem - 2px);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
   font-weight: 600;
 }

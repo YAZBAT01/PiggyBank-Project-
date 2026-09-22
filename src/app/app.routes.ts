@@ -5,6 +5,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { MainLayoutComponent } from './components/main-layout/main-layout.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AccessLogsComponent } from './pages/access-log/access-log.component';
+import { TransferComponent } from './pages/transfer/transfer.component';
 
 export const routes: Routes = [
   {
@@ -37,6 +38,11 @@ export const routes: Routes = [
       {
         path: 'access-log',
         component: AccessLogsComponent
+      },
+
+      {
+        path: 'transfer',
+        component: TransferComponent
       }
 
       // Qui potrai aggiungere in seguito:
