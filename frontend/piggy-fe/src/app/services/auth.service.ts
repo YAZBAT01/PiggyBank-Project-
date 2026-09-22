@@ -18,7 +18,7 @@ export class AuthService {
   private readonly baseUrl = '/v1';
 
   // true = risposte finte, false = chiamate vere
-  private readonly useMock = true;
+  private readonly useMock = false;
 
   // Utente attualmente loggato
   readonly currentUser = signal<User | null>(this.getUser());
