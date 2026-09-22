@@ -37,12 +37,17 @@
   gap: 0.4rem;
 }
 
-.brand-emoji,
 .brand-name {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.625rem;
+  font-size: 2rem;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.5;
+}
+
+.brand-icon {
+  width: 6.5rem;
+  height: 6.5rem;
+  flex-shrink: 0;
 }
 
 .brand-copy h2 {
