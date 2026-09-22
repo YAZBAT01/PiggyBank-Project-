@@ -1,0 +1,173 @@
+<div class="layout-container">
+
+  <!-- Sidebar Laterale -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo">🐷</span>
+      <div class="brand-text">
+        <h2>PiggyBank</h2>
+        <span class="subtitle">Banca Personale</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <div class="nav-section">
+        <span class="section-title">PANORAMICA</span>
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+          <span class="icon">🏠</span> Home
+        </a>
+        <a routerLink="/movimenti" routerLinkActive="active" class="nav-item">
+          <span class="icon">⇅</span> Movimenti
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="section-title">OPERAZIONI</span>
+        <a routerLink="/recharge" routerLinkActive="active" class="nav-item active">
+          <span class="icon">🎯</span> Ricarica Tel.
+        </a>
+        <a routerLink="/bonifico" routerLinkActive="active" class="nav-item">
+          <span class="icon">➔</span> Bonifico
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="section-title">ACCOUNT</span>
+        <a routerLink="/profilo" routerLinkActive="active" class="nav-item">
+          <span class="icon">◯</span> Profilo
+        </a>
+        <a routerLink="/password" routerLinkActive="active" class="nav-item">
+          <span class="icon">◆</span> Password
+        </a>
+        <a routerLink="/log-accessi" routerLinkActive="active" class="nav-item">
+          <span class="icon">≡</span> Log Accessi
+        </a>
+      </div>
+    </nav>
+
+    <div class="user-profile">
+      <span class="user-name">Marco Rossi</span>
+    </div>
+  </aside>
+
+  <!-- Contenuto Principale -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Ricarica Telefonica</h1>
+      <p class="subtitle">Ricarica qualsiasi numero italiano.</p>
+    </div>
+
+    <div class="form-card">
+      <form [formGroup]="ricaricaForm" (ngSubmit)="onSubmit()">
+
+        <!-- Numero di Telefono -->
+        <div class="form-section">
+          <label class="section-label">Numero da ricaricare</label>
+          <input 
+            type="text" 
+            class="input-control" 
+            formControlName="numeroTelefono" 
+            placeholder="Es. +39 331 456 7890" 
+          />
+          <div *ngIf="ricaricaForm.get('numeroTelefono')?.touched && ricaricaForm.get('numeroTelefono')?.invalid" class="error-text">
+            Inserisci un numero di telefono valido.
+          </div>
+        </div>
+
+        <!-- Selettore Operatore -->
+        <div class="form-section">
+          <label class="section-label">Operatore</label>
+          <div class="grid-buttons operator-grid">
+            <button 
+              type="button" 
+              *ngFor="let op of operatori"
+              class="btn-selectable"
+              [class.active]="ricaricaForm.get('operatore')?.value === op"
+              (click)="selectOperatore(op)"
+            >
+              {{ op }}
+            </button>
+          </div>
+          <div *ngIf="ricaricaForm.get('operatore')?.touched && ricaricaForm.get('operatore')?.invalid" class="error-text">
+            Seleziona un operatore.
+          </div>
+        </div>
+
+        <!-- Selettore Importo -->
+        <div class="form-section">
+          <label class="section-label">Importo</label>
+          <div class="grid-buttons importo-grid">
+            <button 
+              type="button" 
+              *ngFor="let t of tagli"
+              class="btn-selectable"
+              [class.active]="ricaricaForm.get('taglio')?.value === t && !ricaricaForm.get('importoPersonalizzato')?.value"
+              (click)="selectTaglio(t)"
+            >
+              {{ t }},00 €
+            </button>
+          </div>
+
+          <input 
+            type="number" 
+            class="input-control custom-importo-input" 
+            formControlName="importoPersonalizzato" 
+            placeholder="Importo personalizzato (€)" 
+          />
+          <div *ngIf="ricaricaForm.get('taglio')?.touched && ricaricaForm.get('taglio')?.invalid" class="error-text">
+            Seleziona o inserisci un importo valido.
+          </div>
+        </div>
+
+        <!-- Banner Saldo -->
+        <div class="saldo-banner">
+          Saldo disponibile: <strong>{{ (saldo$ | async) | currency:'EUR':'symbol':'1.2-2' }}</strong> — Conto Corrente Principale
+        </div>
+
+        <!-- Pulsante Invia -->
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          {{ isLoading ? 'In corso...' : 'Ricarica Ora' }}
+        </button>
+
+      </form>
+
+      <div *ngIf="messaggioEsito" [class]="isError ? 'alert alert-danger' : 'alert alert-success'">
+        {{ messaggioEsito }}
+      </div>
+    </div>
+
+    <!-- Tabella Movimenti -->
+    <div class="table-card">
+      <h3>Storico TMovimenti & Log IP</h3>
+      <table class="movimenti-table">
+        <thead>
+          <tr>
+            <th>Data/Ora</th>
+            <th>Descrizione</th>
+            <th>Categoria</th>
+            <th>Importo</th>
+            <th>Esito</th>
+            <th>IP Origine</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of movimenti$ | async">
+            <td>{{ m.data | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ m.descrizione }}</td>
+            <td><span class="badge category">{{ m.categoria }}</span></td>
+            <td [class.negative]="m.importo < 0" [class.positive]="m.importo > 0">
+              {{ m.importo | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+            <td>
+              <span [class]="m.esito === 'OK' ? 'badge status-ok' : 'badge status-fail'">
+                {{ m.esito }}
+              </span>
+            </td>
+            <td><code>{{ m.indirizzoIP }}</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>

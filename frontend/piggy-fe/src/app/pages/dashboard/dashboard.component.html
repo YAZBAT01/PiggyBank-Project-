@@ -1,4 +1,73 @@
 <div class="dashboard">
+  <p class="greeting">Ciao, {{ firstname }} 👋</p>
+
+  <section class="wealth-card">
+    <p class="wealth-label">Patrimonio totale</p>
+    <p class="wealth-amount">{{ formatCurrency(totalWealth) }}</p>
+
+    <div class="accounts-row">
+      @for (account of accounts; track account.name; let i = $index) {
+        <button
+          type="button"
+          class="account-chip"
+          [class.active]="i === selectedIndex()"
+          (click)="selectAccount(i)"
+        >
+          <span class="account-name">{{ account.name }}</span>
+          <span class="account-balance">{{ formatCurrency(account.balance) }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="wealth-dots" aria-hidden="true">
+      @for (account of accounts; track account.name; let i = $index) {
+        <span class="dot" [class.active]="i === selectedIndex()"></span>
+      }
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <div class="stat-card">
+      <p class="stat-label">Saldo conto</p>
+      <p class="stat-value">{{ formatCurrency(selectedAccount().balance) }}</p>
+      <p class="stat-sub">{{ selectedAccount().name }}</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Entrate (mese)</p>
+      <p class="stat-value positive">{{ formatCurrency(monthlyIncome) }}</p>
+      <p class="stat-sub">Accrediti ricevuti</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Uscite (mese)</p>
+      <p class="stat-value negative">{{ formatCurrency(monthlyExpenses) }}</p>
+      <p class="stat-sub">Addebiti effettuati</p>
+    </div>
+  </section>
+
+  <section class="transactions-card">
+    <div class="transactions-header">
+      <h2>Ultimi movimenti</h2>
+      <a routerLink="/transactions" class="link-all">Vedi tutti</a>
+    </div>
+    <ul class="transactions-list">
+      @for (tx of transactions; track tx.id) {
+        <li class="transaction-row">
+          <span class="tx-icon" [style.background]="tx.color">{{ tx.icon }}</span>
+          <div class="tx-info">
+            <p class="tx-title">{{ tx.title }}</p>
+            <p class="tx-meta">{{ tx.category }} · {{ tx.date }}</p>
+          </div>
+          <div class="tx-amount-block">
+            <p class="tx-amount" [class.positive]="tx.amount > 0" [class.negative]="tx.amount < 0">
+              {{ tx.amount > 0 ? '+' : '' }}{{ formatCurrency(tx.amount) }}
+            </p>
+            <p class="tx-ref">{{ tx.reference }}</p>
+          </div>
+        </li>
+      }
+    </ul>
+  </section>
+<div class="dashboard">
   <p class="greeting">Ciao, {{ firstname }} 
      <img src="/hand.svg" alt="" class="hand-icon" />
   </p>
