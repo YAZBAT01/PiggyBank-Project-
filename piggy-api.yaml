@@ -1,0 +1,674 @@
+openapi: 3.0.3
+info:
+    title: Bank App WebApi
+    description: API per la gestione di conti correnti, autenticazione, movimenti e operazioni dispositive (Bonifici, Ricariche) basata su MongoDB.
+    version: 1.0.0
+servers:
+    - url: https://api.tuodominio.com/v1
+      description: Server di Produzione / Staging
+
+paths:
+    # ------------------------------------------------------------------
+    # AUTENTICAZIONE E REGISTRAZIONE
+    # ------------------------------------------------------------------
+    /auth/register:
+        post:
+            summary: Registrazione nuovo utente e conto corrente
+            description: |
+                Effettua la registrazione dell'utente. Valida email non esistente, complessità password.
+                Crea il record del conto corrente ed invia la mail di conferma.
+            tags:
+                - Autenticazione
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/RegisterRequest"
+            responses:
+                "201":
+                    description: Utente registrato con successo. Email di conferma inviata.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/User"
+                "400":
+                    description: Qualcosa è andato storto.
+
+    /auth/confirm-email:
+        get:
+            summary: Conferma registrazione tramite token email
+            description: |
+                Valida il token ricevuto via email. Una volta confermato l'account,
+                inserisce in automatico il movimento di "Apertura Conto" a saldo zero.
+            tags:
+                - Autenticazione
+            parameters:
+                - in: query
+                  name: token
+                  required: true
+                  schema:
+                      type: string
+                  description: Token unico di conferma inviato via mail
+            responses:
+                "200":
+                    description: Account confermato e movimento di apertura conto generato.
+                "400":
+                    description: Token non valido o scaduto.
+
+    /auth/login:
+        post:
+            summary: Login utente
+            description: |
+                Autenticazione tramite Email e Password. Registra l'indirizzo IP, il timestamp e l'esito del tentativo.
+            tags:
+                - Autenticazione
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/LoginRequest"
+            responses:
+                "201":
+                    description: Login effettuato con successo. Restituisce il token JWT e i dati base utente.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/LoginResponse"
+                "401":
+                    description: Credenziali non valide (tentativo fallito registrato).
+
+    /auth/change-password:
+        post:
+            summary: Modifica della password
+            description: Permette all'utente autenticato di modificare la propria password. Traccia IP e timestamp dell'operazione.
+            tags:
+                - Autenticazione
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ChangePasswordRequest"
+            responses:
+                "200":
+                    description: Password modificata con successo.
+                "400":
+                    description: Nuova password non conforme ai requisiti di sicurezza o password attuale errata.
+                "401":
+                    description: Non autorizzato.
+
+    # ------------------------------------------------------------------
+    # PROFILO E CONTO CORRENTE
+    # ------------------------------------------------------------------
+    /profile:
+        get:
+            summary: Ottieni dati profilo e conto corrente
+            description: Restituisce i dettagli del conto e dell'utente (esclusa la password).
+            tags:
+                - Profilo & Conto Corrente
+            security:
+                - BearerAuth: []
+            responses:
+                "200":
+                    description: Dettagli del conto corrente e dell'utente.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/BankAccount"
+                "401":
+                    description: Non autorizzato.
+
+    /account/dashboard:
+        get:
+            summary: Dati Home Page (Saldo + ultimi 5 movimenti)
+            description: Restituisce il benvenuto, il saldo attuale e i 5 movimenti più recenti.
+            tags:
+                - Profilo & Conto Corrente
+            security:
+                - BearerAuth: []
+            responses:
+                "200":
+                    description: Dati per la dashboard iniziale.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DashboardResponse"
+                "401":
+                    description: Non autorizzato.
+
+    # ------------------------------------------------------------------
+    # MOVIMENTI E RICERCHE
+    # ------------------------------------------------------------------
+    /transactions/search/latest:
+        get:
+            summary: "RicercaMovimenti1: Ultimi N movimenti con saldo finale"
+            description: Restituisce gli ultimi N movimenti in ordine decrescente di data, includendo il saldo finale.
+            tags:
+                - Movimenti
+            security:
+                - BearerAuth: []
+            parameters:
+                - in: query
+                  name: limit
+                  required: true
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Numero di movimenti da visualizzare (N)
+            responses:
+                "200":
+                    description: Elenco movimenti e saldo finale.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TransactionSearch1Response"
+                "401":
+                    description: Non autorizzato.
+
+    /transactions/search/category:
+        get:
+            summary: "RicercaMovimenti2: Ultimi N movimenti per Categoria"
+            description: Restituisce gli ultimi N movimenti per una specifica categoria. Non mostra il saldo finale.
+            tags:
+                - Movimenti
+            security:
+                - BearerAuth: []
+            parameters:
+                - in: query
+                  name: categoryId
+                  required: true
+                  schema:
+                      type: string
+                      pattern: "^[0-9a-fA-F]{24}$"
+                  description: MongoDB ObjectId della categoria movimenti
+                - in: query
+                  name: limit
+                  required: true
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Numero di movimenti da visualizzare (N)
+            responses:
+                "200":
+                    description: Elenco movimenti filtrati per categoria.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/TransactionSimpleDto"
+                "401":
+                    description: Non autorizzato.
+
+    /transactions/search/dates:
+        get:
+            summary: "RicercaMovimenti3: Ultimi N movimenti tra due date"
+            description: Restituisce gli ultimi N movimenti compresi nel range di date indicato. Non mostra il saldo finale.
+            tags:
+                - Movimenti
+            security:
+                - BearerAuth: []
+            parameters:
+                - in: query
+                  name: startDate
+                  required: true
+                  schema:
+                      type: string
+                      format: date
+                  description: Data inizio (YYYY-MM-DD)
+                - in: query
+                  name: endDate
+                  required: true
+                  schema:
+                      type: string
+                      format: date
+                  description: Data fine (YYYY-MM-DD)
+                - in: query
+                  name: limit
+                  required: true
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Numero di movimenti da visualizzare (N)
+            responses:
+                "200":
+                    description: Elenco movimenti filtrati per range di date.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/TransactionSimpleDto"
+                "401":
+                    description: Non autorizzato.
+
+    /transactions/export:
+        get:
+            summary: Esportazione movimenti in formato CSV o Excel
+            description: Esporta i movimenti dell'utente secondo i filtri passati (per tipo ricerca o libero).
+            tags:
+                - Movimenti
+            security:
+                - BearerAuth: []
+            parameters:
+                - in: query
+                  name: format
+                  required: true
+                  schema:
+                      type: string
+                      enum: [csv, excel]
+                  description: Formato di esportazione desiderato
+                - in: query
+                  name: categoryId
+                  required: false
+                  schema:
+                      type: string
+                      pattern: "^[0-9a-fA-F]{24}$"
+                - in: query
+                  name: startDate
+                  required: false
+                  schema:
+                      type: string
+                      format: date
+                - in: query
+                  name: endDate
+                  required: false
+                  schema:
+                      type: string
+                      format: date
+                - in: query
+                  name: limit
+                  required: false
+                  schema:
+                      type: integer
+            responses:
+                "200":
+                    description: File generato con successo.
+                    content:
+                        text/csv:
+                            schema:
+                                type: string
+                                format: binary
+                        application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+                            schema:
+                                type: string
+                                format: binary
+                "401":
+                    description: Non autorizzato.
+
+    /transactions/{transactionId}:
+        get:
+            summary: Dettaglio di un singolo movimento
+            description: Restituisce tutti i campi di un singolo movimento selezionato.
+            tags:
+                - Movimenti
+            security:
+                - BearerAuth: []
+            parameters:
+                - in: path
+                  name: transactionId
+                  required: true
+                  schema:
+                      type: string
+                      pattern: "^[0-9a-fA-F]{24}$"
+                  description: MongoDB ObjectId del movimento
+            responses:
+                "200":
+                    description: Dettagli completi del movimento.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Transaction"
+                "404":
+                    description: Movimento non trovato.
+
+    /categories:
+        get:
+            summary: Elenco Categorie Movimenti
+            description: Restituisce la lista di tutte le categorie censite (Apertura Conto, Bonifico, Prelievo, ecc.).
+            tags:
+                - Movimenti
+            security:
+                - BearerAuth: []
+            responses:
+                "200":
+                    description: Lista categorie recuperata con successo.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/TransactionCategory"
+
+    # ------------------------------------------------------------------
+    # OPERAZIONI DISPOSITIVE
+    # ------------------------------------------------------------------
+    /operations/mobile-recharge:
+        post:
+            summary: Ricarica Cellulare
+            description: |
+                Effettua la ricarica telefonica. Verifica prima la disponibilità del saldo.
+                Aggiorna il saldo e memorizza il log dell'operazione (IP, esito, data/ora).
+            tags:
+                - Operazioni
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/MobileRechargeRequest"
+            responses:
+                "200":
+                    description: Ricarica effettuata con successo.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/OperationResponse"
+                "400":
+                    description: Saldo insufficiente o dati non validi.
+                "401":
+                    description: Non autorizzato.
+
+    /operations/bank-transfer:
+        post:
+            summary: Bonifico ad altro conto corrente
+            description: |
+                Dispone un bonifico verso un IBAN censito nel sistema. Verifica la presenza dell'IBAN di destinazione
+                e la disponibilità del saldo. Registra l'esito con IP e timestamp.
+            tags:
+                - Operazioni
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/BankTransferRequest"
+            responses:
+                "200":
+                    description: Bonifico eseguito con successo.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/OperationResponse"
+                "400":
+                    description: Saldo insufficiente, dati non validi o IBAN destinatario non trovato.
+                "401":
+                    description: Non autorizzato.
+
+# ------------------------------------------------------------------
+# COMPONENTI E SCHEMI DATI
+# ------------------------------------------------------------------
+components:
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+
+    schemas:
+        # --- MODELLI DI DOMINIO MONGODB ---
+        User:
+            type: object
+            properties:
+                userID:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+                    example: "65f1a2b3c4d5e6f7a8b90123"
+                    description: MongoDB ObjectId (_id)
+                email:
+                    type: string
+                    format: email
+                    example: "mario.rossi@example.com"
+                firstname:
+                    type: string
+                    example: "Mario"
+                lastname:
+                    type: string
+                    example: "Rossi"
+                fullname:
+                    type: string
+                    example: "Mario Rossi"
+        BankAccount:
+            type: object
+            properties:
+                bankAccountID:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+                    example: "65f1a2b3c4d5e6f7a8b90124"
+                    description: MongoDB ObjectId (_id)
+                openingDate:
+                    type: string
+                    format: date-time
+                    example: "2026-01-15T09:30:00Z"
+                iban:
+                    type: string
+                    example: "IT60X0542811101000000123456"
+                user:
+                    $ref: "#/components/schemas/User"
+
+        TransactionCategory:
+            type: object
+            properties:
+                transactionCategoryID:
+                    type: integer
+                    example: 1
+                name:
+                    type: string
+                    example: "Apertura conto"
+                    description: "Apertura Conto, Bonifico Entrata, Bonifico Uscita, Prelievo contanti, Pagamento Utenze, Ricarica, Versamento Bancomat, ecc."
+                type:
+                    type: string
+                    enum: [Entrata, Uscita]
+                    example: "Entrata"
+
+        Transaction:
+            type: object
+            properties:
+                transactionID:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+                    example: "65f1a2b3c4d5e6f7a8b90126"
+                    description: MongoDB ObjectId (_id)
+                bankAccountID:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+                    example: "65f1a2b3c4d5e6f7a8b90124"
+                date:
+                    type: string
+                    format: date-time
+                    example: "2026-03-10T14:22:10Z"
+                amount:
+                    type: number
+                    format: double
+                    example: -50.00
+                balance:
+                    type: number
+                    format: double
+                    example: 1250.50
+                description:
+                    type: string
+                    example: "Bonifico disposto a favore di Mario Bianchi"
+                transactionCategory:
+                    $ref: "#/components/schemas/TransactionCategory"
+
+        TransactionSimpleDto:
+            type: object
+            description: DTO semplificato per tabelle di ricerca (Data, Importo, NomeCategoria)
+            properties:
+                transactionID:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+                date:
+                    type: string
+                    format: date-time
+                amount:
+                    type: number
+                    format: double
+                categoryName:
+                    type: string
+                    example: "Pagamento Utenze"
+
+        # --- DTO RICHIESTE E RISPOSTE ---
+        RegisterRequest:
+            type: object
+            required:
+                - email
+                - password
+                - confirmPassword
+                - firstname
+                - lastname
+            properties:
+                email:
+                    type: string
+                    format: email
+                    example: "mario.rossi@example.com"
+                password:
+                    type: string
+                    format: password
+                    minLength: 8
+                    example: "P@ssword123!"
+                    description: "Almeno 8 caratteri, una maiuscola e un simbolo"
+                confirmPassword:
+                    type: string
+                    format: password
+                    example: "P@ssword123!"
+                firstname:
+                    type: string
+                    example: "Mario"
+                lastname:
+                    type: string
+                    example: "Rossi"
+
+        LoginRequest:
+            type: object
+            required:
+                - email
+                - password
+            properties:
+                email:
+                    type: string
+                    format: email
+                    example: "mario.rossi@example.com"
+                password:
+                    type: string
+                    format: password
+                    example: "P@ssword123!"
+
+        LoginResponse:
+            type: object
+            properties:
+                user:
+                    $ref: "#/components/schemas/User"
+                token:
+                    type: string
+                    example: 8TvcVFQEvb3BsVPF_HAy_15Dc1wVOk1dneX4Wq4
+
+        ChangePasswordRequest:
+            type: object
+            required:
+                - currentPassword
+                - newPassword
+                - confirmNewPassword
+            properties:
+                currentPassword:
+                    type: string
+                    format: password
+                newPassword:
+                    type: string
+                    format: password
+                    minLength: 8
+                    description: "Almeno 8 caratteri, una maiuscola e un simbolo"
+                confirmNewPassword:
+                    type: string
+                    format: password
+
+        DashboardResponse:
+            type: object
+            properties:
+                welcomeMessage:
+                    type: string
+                    example: "Benvenuto Mario Rossi"
+                balance:
+                    type: number
+                    format: double
+                    example: 1500.00
+                recentTransactions:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Transaction"
+
+        TransactionSearch1Response:
+            type: object
+            properties:
+                finalBalance:
+                    type: number
+                    format: double
+                    example: 1500.00
+                transactions:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/TransactionSimpleDto"
+
+        MobileRechargeRequest:
+            type: object
+            required:
+                - phoneNumber
+                - provider
+                - amount
+            properties:
+                phoneNumber:
+                    type: string
+                    example: "3331234567"
+                provider:
+                    type: string
+                    example: "Iliad"
+                    enum: [Iliad, Tim, Vodafone, WindTre, Ho, Kena]
+                amount:
+                    type: number
+                    format: double
+                    example: 10.00
+                    enum: [5, 10, 15, 20, 30, 50]
+
+        BankTransferRequest:
+            type: object
+            required:
+                - destinationIban
+                - amount
+                - description
+            properties:
+                destinationIban:
+                    type: string
+                    example: "IT02L030690210000000987654"
+                amount:
+                    type: number
+                    format: double
+                    example: 250.00
+                description:
+                    type: string
+                    example: "Bonifico per spese condivise"
+
+        OperationResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    example: true
+                message:
+                    type: string
+                    example: "Operazione eseguita con successo."
+                transactionID:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+                    example: "65f1a2b3c4d5e6f7a8b90126"
+                updatedBalance:
+                    type: number
+                    format: double
+                    example: 1250.00
