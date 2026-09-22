@@ -33,5 +33,30 @@ export class LoginDto {
 export class ConfirmDto {
   @IsString()
   @IsJWT()
-  token: string
+  token: string;
+}
+
+export class ChangePswDto {
+  @IsString()
+  currentPassword: string;
+
+  @IsString()
+  @Matches(
+    new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$'),
+    {
+      message:
+        'password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character.',
+    },
+  )
+  newPassword: string;
+
+  @IsString()
+  @Matches(
+    new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$'),
+    {
+      message:
+        'password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character.',
+    },
+  )
+  confirmPassword: string;
 }

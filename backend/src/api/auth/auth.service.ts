@@ -1,9 +1,11 @@
-import nodemailer from 'nodemailer';
-import { UserCredentials } from './auth.entity';
+import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { ConfirmDto } from './auth.dto';
-import { EmailConfirmationModel } from '../emailConfirmation/email.confimation.model';
+import nodemailer from 'nodemailer';
+import { InvalidPasswordError } from '../../errors/invalid-password';
 import { NotFoundError } from '../../errors/not-found.error';
+import { UserIdentityModel } from '../../lib/auth/local/user-identity.model';
+import { EmailConfirmationModel } from '../emailConfirmation/email.confimation.model';
+import { ChangePswDto, ConfirmDto } from './auth.dto';
 
 export class AuthSrv {
   async sendEmail(email: string, userID: string) {
@@ -55,7 +57,6 @@ export class AuthSrv {
       confirmationToken: token,
       isConfirmed: false,
     });
-
   }
 
   async confirmEmail(confirmDetails: ConfirmDto) {
@@ -68,6 +69,33 @@ export class AuthSrv {
     toUpdate.isConfirmed = true;
 
     const updated = await toUpdate.save();
+    return updated;
+  }
+
+  async changePsw(userID: string, newData: ChangePswDto) {
+    const { currentPassword, newPassword, confirmPassword } = newData;
+    const toUpdate = await UserIdentityModel.findOne({ user: userID });
+    if (!toUpdate) {
+      throw new NotFoundError();
+    }
+
+    // const hashedPassword = await bcrypt.hash(currentPassword, 10);
+    if (
+      !(await bcrypt.compare(
+        currentPassword,
+        toUpdate.credentials.hashedPassword,
+      ))
+    ) {
+      throw new InvalidPasswordError();
+    }
+
+    if (newPassword !== confirmPassword) {
+      throw new InvalidPasswordError();
+    }
+
+    toUpdate.credentials.hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updated = await toUpdate.save();
+
     return updated;
   }
 }

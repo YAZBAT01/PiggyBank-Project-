@@ -12,7 +12,6 @@ export class UserService {
     const existingIdentity = await UserIdentityModel.findOne({
       'credentials.email': credentials.email,
     });
-    console.error(existingIdentity)
     if (existingIdentity) {
       throw new UserExistsError();
     }

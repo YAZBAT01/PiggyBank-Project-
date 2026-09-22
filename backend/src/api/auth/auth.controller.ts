@@ -5,9 +5,11 @@ import passport from 'passport';
 import { UserExistsError } from '../../errors/user-exists.error';
 import { TypedRequest } from '../../lib/typed-request';
 import userSrv from '../user/user.service';
-import { ConfirmDto, LoginDto, RegisterDto } from './auth.dto';
+import { ChangePswDto, ConfirmDto, LoginDto, RegisterDto } from './auth.dto';
 import authSrv from './auth.service';
 import { EmailConfirmationModel } from '../emailConfirmation/email.confimation.model';
+import { UserIdentityModel } from '../../lib/auth/local/user-identity.model';
+import { NotFoundError } from '../../errors/not-found.error';
 
 export const register = async (
   req: TypedRequest<RegisterDto>,
@@ -57,7 +59,6 @@ export const login = async (
           });
           return;
         }
-
         // generare token
         const token = jwt.sign(user, 'my_jwt_secret', { expiresIn: '7 days' });
         res.json({
@@ -79,6 +80,22 @@ export const confirm = async (
   try {
     const isConfirmed = await authSrv.confirmEmail(req.query);
     res.json(isConfirmed);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const changePsw = async (
+  req: TypedRequest<any, any, ChangePswDto>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+
+    const isChanged = await authSrv.changePsw(req.user!.userID, req.body);
+    if (!!isChanged) {
+      res.send(200);
+    }
   } catch (err) {
     next(err);
   }
