@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CategoriaMovimento, Movimento } from './movimenti.model';
 import { MovimentiService } from './movimenti.service';
 
@@ -9,7 +10,7 @@ type ModalitaRicerca = 'ultimi' | 'categoria' | 'periodo';
 @Component({
   selector: 'app-movimenti',
   standalone: true,
-  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe],
+  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe, RouterLink, RouterLinkActive],
   templateUrl: './movimenti.component.html',
   styleUrl: './movimenti.component.css',
 })
@@ -17,6 +18,8 @@ export class MovimentiComponent implements OnInit {
   modalita: ModalitaRicerca = 'ultimi';
   numero = 5;
   categoriaId = '';
+  tipo = '';
+  testo = '';
   dal = '';
   al = '';
   saldo?: number;
@@ -55,7 +58,9 @@ export class MovimentiComponent implements OnInit {
       saldo: this.modalita === 'ultimi',
     }).subscribe({
       next: risposta => {
-        this.movimenti = risposta.movements;
+        this.movimenti = risposta.movements.filter(movimento =>
+          (!this.tipo || movimento.category.type === this.tipo) &&
+          (!this.testo || `${movimento.description ?? ''} ${movimento.reference ?? ''}`.toLowerCase().includes(this.testo.toLowerCase())));
         this.saldo = risposta.balance;
         this.caricamento = false;
       },
@@ -65,6 +70,15 @@ export class MovimentiComponent implements OnInit {
       },
     });
   }
+
+  resetFiltri(): void {
+    this.numero = 10; this.categoriaId = ''; this.tipo = ''; this.testo = ''; this.dal = ''; this.al = '';
+    this.cerca();
+  }
+
+  get totaleAccrediti(): number { return this.movimenti.filter(m => m.amount > 0).reduce((totale, m) => totale + m.amount, 0); }
+  get totaleAddebiti(): number { return this.movimenti.filter(m => m.amount < 0).reduce((totale, m) => totale + Math.abs(m.amount), 0); }
+  get saldoPeriodo(): number { return this.totaleAccrediti - this.totaleAddebiti; }
 
   esportaCsv(): void {
     const righe = [

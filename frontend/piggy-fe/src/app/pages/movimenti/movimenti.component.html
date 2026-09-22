@@ -1,5 +1,12 @@
-<section class="movimenti">
-  <h2>Ricerca movimenti</h2>
+<section class="movimenti-page">
+  <aside class="sidebar">
+    <div class="brand"><span>🐷</span><div><strong>PiggyBank</strong><small>Banca Personale</small></div></div>
+    <p class="menu-label">PANORAMICA</p><a routerLink="/dashboard" routerLinkActive="selected">⌂ <span>Home</span></a><a routerLink="/movimenti" routerLinkActive="selected">↕ <span>Movimenti</span></a>
+    <p class="menu-label">OPERAZIONI</p><a routerLink="/telefono" routerLinkActive="selected">◎ <span>Ricarica Tel.</span></a><a routerLink="/bonifico" routerLinkActive="selected">→ <span>Bonifico</span></a>
+    <p class="menu-label">ACCOUNT</p><a routerLink="/profilo" routerLinkActive="selected">◯ <span>Profilo</span></a><a routerLink="/password" routerLinkActive="selected">◆ <span>Password</span></a><a routerLink="/home" routerLinkActive="selected">☰ <span>Log Accessi</span></a>
+  </aside>
+  <main class="movimenti">
+  <div class="title-row"><div><h1>Movimenti</h1><p>{{ movimenti.length }} transazioni trovate</p></div><button class="export" type="button" (click)="esportaCsv()" [disabled]="!movimenti.length">↓ Esporta CSV</button></div>
 
   <div class="tabs" aria-label="Modalità di ricerca">
     <button type="button" [class.active]="modalita === 'ultimi'" (click)="cambiaModalita('ultimi')">Ultimi movimenti</button>
@@ -7,7 +14,9 @@
     <button type="button" [class.active]="modalita === 'periodo'" (click)="cambiaModalita('periodo')">Per periodo</button>
   </div>
 
+  <div class="filters-card">
   <div class="filters">
+    <label>Cerca (descrizione / riferimento)<input type="search" [(ngModel)]="testo" placeholder="Es. Esselunga, REF-003…"></label>
     <label>Numero di movimenti
       <input type="number" min="1" max="100" [(ngModel)]="numero">
     </label>
@@ -18,6 +27,7 @@
         <option *ngFor="let categoria of categorie" [value]="categoria._id">{{ categoria.name }}</option>
       </select>
     </label>
+    <label>Tipo<select [(ngModel)]="tipo"><option value="">Tutti</option><option value="Entrata">Entrate</option><option value="Uscita">Uscite</option></select></label>
 
     <label *ngIf="modalita === 'periodo'">Dal
       <input type="date" [(ngModel)]="dal">
@@ -26,29 +36,31 @@
       <input type="date" [(ngModel)]="al">
     </label>
 
-    <button type="button" (click)="cerca()">Cerca</button>
+    <button type="button" (click)="cerca()">Cerca</button><button type="button" class="reset" (click)="resetFiltri()">Reset filtri</button>
+  </div>
   </div>
 
   <p class="error" *ngIf="messaggio">{{ messaggio }}</p>
   <p *ngIf="caricamento">Caricamento…</p>
 
-  <div class="toolbar">
-    <button type="button" (click)="esportaCsv()" [disabled]="!movimenti.length">Esporta CSV</button>
-  </div>
+  <div class="summary"><article><span>Totale accrediti</span><strong class="positive">{{ totaleAccrediti | currency:'EUR' }}</strong></article><article><span>Totale addebiti</span><strong class="negative">{{ totaleAddebiti | currency:'EUR' }}</strong></article><article><span>Saldo periodo</span><strong class="positive">{{ saldoPeriodo | currency:'EUR' }}</strong></article></div>
 
   <table>
-    <thead><tr><th>Data</th><th>Importo</th><th>Nome categoria</th></tr></thead>
+    <thead><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th>Riferimento</th><th>Importo</th></tr></thead>
     <tbody>
       <tr *ngFor="let movimento of movimenti">
-        <td>{{ movimento.date | date:'dd/MM/yyyy' }}</td>
-        <td [class.negative]="movimento.amount < 0">{{ movimento.amount | currency:'EUR' }}</td>
+        <td>{{ movimento.date | date:'dd MMM yyyy' }}</td>
+        <td><strong>{{ movimento.description || 'Movimento conto' }}</strong></td>
         <td>{{ movimento.category.name }}</td>
+        <td>{{ movimento.reference || '—' }}</td>
+        <td [class.negative]="movimento.amount < 0" [class.positive]="movimento.amount > 0">{{ movimento.amount | currency:'EUR' }}</td>
       </tr>
-      <tr *ngIf="!caricamento && !movimenti.length"><td colspan="3" class="empty">Nessun movimento trovato.</td></tr>
+      <tr *ngIf="!caricamento && !movimenti.length"><td colspan="5" class="empty">Nessun movimento trovato.</td></tr>
     </tbody>
   </table>
 
   <div class="saldo" *ngIf="modalita === 'ultimi' && saldo !== undefined">
     <span>Saldo finale del conto</span><strong>{{ saldo | currency:'EUR' }}</strong>
   </div>
+  </main>
 </section>
