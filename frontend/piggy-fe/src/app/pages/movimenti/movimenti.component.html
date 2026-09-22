@@ -1,0 +1,54 @@
+<section class="movimenti">
+  <h2>Ricerca movimenti</h2>
+
+  <div class="tabs" aria-label="Modalità di ricerca">
+    <button type="button" [class.active]="modalita === 'ultimi'" (click)="cambiaModalita('ultimi')">Ultimi movimenti</button>
+    <button type="button" [class.active]="modalita === 'categoria'" (click)="cambiaModalita('categoria')">Per categoria</button>
+    <button type="button" [class.active]="modalita === 'periodo'" (click)="cambiaModalita('periodo')">Per periodo</button>
+  </div>
+
+  <div class="filters">
+    <label>Numero di movimenti
+      <input type="number" min="1" max="100" [(ngModel)]="numero">
+    </label>
+
+    <label *ngIf="modalita === 'categoria'">Categoria
+      <select [(ngModel)]="categoriaId">
+        <option value="">Scegli una categoria</option>
+        <option *ngFor="let categoria of categorie" [value]="categoria._id">{{ categoria.name }}</option>
+      </select>
+    </label>
+
+    <label *ngIf="modalita === 'periodo'">Dal
+      <input type="date" [(ngModel)]="dal">
+    </label>
+    <label *ngIf="modalita === 'periodo'">Al
+      <input type="date" [(ngModel)]="al">
+    </label>
+
+    <button type="button" (click)="cerca()">Cerca</button>
+  </div>
+
+  <p class="error" *ngIf="messaggio">{{ messaggio }}</p>
+  <p *ngIf="caricamento">Caricamento…</p>
+
+  <div class="toolbar">
+    <button type="button" (click)="esportaCsv()" [disabled]="!movimenti.length">Esporta CSV</button>
+  </div>
+
+  <table>
+    <thead><tr><th>Data</th><th>Importo</th><th>Nome categoria</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let movimento of movimenti">
+        <td>{{ movimento.date | date:'dd/MM/yyyy' }}</td>
+        <td [class.negative]="movimento.amount < 0">{{ movimento.amount | currency:'EUR' }}</td>
+        <td>{{ movimento.category.name }}</td>
+      </tr>
+      <tr *ngIf="!caricamento && !movimenti.length"><td colspan="3" class="empty">Nessun movimento trovato.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="saldo" *ngIf="modalita === 'ultimi' && saldo !== undefined">
+    <span>Saldo finale del conto</span><strong>{{ saldo | currency:'EUR' }}</strong>
+  </div>
+</section>

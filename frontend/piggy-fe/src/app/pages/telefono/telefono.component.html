@@ -1,0 +1,54 @@
+<div class="ricarica-container">
+  <h2>Ricarica Cellulare</h2>
+
+  <form [formGroup]="ricaricaForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Numero di Telefono -->
+    <div class="form-group">
+      <label for="numeroTelefono">Numero di Telefono</label>
+      <input 
+        id="numeroTelefono" 
+        type="text" 
+        formControlName="numeroTelefono" 
+        placeholder="Es. 3331234567" 
+      />
+      <div *ngIf="ricaricaForm.get('numeroTelefono')?.touched && ricaricaForm.get('numeroTelefono')?.invalid" class="error-text">
+        Inserisci un numero valido (9-10 cifre).
+      </div>
+    </div>
+
+    <!-- Operatore -->
+    <div class="form-group">
+      <label for="operatore">Operatore</label>
+      <select id="operatore" formControlName="operatore">
+        <option value="" disabled>Seleziona operatore</option>
+        <option *ngFor="let op of operatori" [value]="op">{{ op }}</option>
+      </select>
+      <div *ngIf="ricaricaForm.get('operatore')?.touched && ricaricaForm.get('operatore')?.invalid" class="error-text">
+        Seleziona un operatore.
+      </div>
+    </div>
+
+    <!-- Taglio Ricarica -->
+    <div class="form-group">
+      <label for="taglio">Taglio Ricarica (€)</label>
+      <select id="taglio" formControlName="taglio">
+        <option value="" disabled>Seleziona importo</option>
+        <option *ngFor="let t of tagli" [value]="t">{{ t }} €</option>
+      </select>
+      <div *ngIf="ricaricaForm.get('taglio')?.touched && ricaricaForm.get('taglio')?.invalid" class="error-text">
+        Seleziona un taglio.
+      </div>
+    </div>
+
+    <!-- Pulsante Invio -->
+    <button type="submit" [disabled]="ricaricaForm.invalid || isLoading">
+      {{ isLoading ? 'Elaborazione in corso...' : 'Conferma Ricarica' }}
+    </button>
+  </form>
+
+  <!-- Feedback Esito -->
+  <div *ngIf="messaggioEsito" [class]="isError ? 'alert alert-danger' : 'alert alert-success'">
+    {{ messaggioEsito }}
+  </div>
+</div>
