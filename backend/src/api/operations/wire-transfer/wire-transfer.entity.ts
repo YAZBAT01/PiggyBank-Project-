@@ -1,5 +1,5 @@
 export type WireTransfer = {
-  id: string;
+  wireTransferID: string;
   destinationIBAN: string;
   amount: number;
   description: string

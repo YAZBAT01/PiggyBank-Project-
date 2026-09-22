@@ -6,7 +6,7 @@ import { UserModel } from './user.model';
 
 export class UserService {
   async add(
-    user: Omit<User, 'id' | 'fullName'>,
+    user: Omit<User, 'userID' | 'fullName'>,
     credentials: { email: string; password: string },
   ): Promise<User> {
     const existingIdentity = await UserIdentityModel.findOne({
@@ -29,8 +29,17 @@ export class UserService {
       },
     });
 
+    this._setupEmailVerification(newUser.id)
+
     return newUser;
   }
+
+  private async _setupEmailVerification(userID: string){
+
+  }
+
 }
+
+
 
 export default new UserService();

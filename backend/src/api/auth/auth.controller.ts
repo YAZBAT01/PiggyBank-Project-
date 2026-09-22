@@ -5,7 +5,8 @@ import passport from 'passport';
 import { UserExistsError } from '../../errors/user-exists.error';
 import { TypedRequest } from '../../lib/typed-request';
 import userSrv from '../user/user.service';
-import { RegisterDto } from './auth.dto';
+import { ConfirmDto, LoginDto, RegisterDto } from './auth.dto';
+import authSrv from './auth.service';
 
 export const register = async (
   req: TypedRequest<RegisterDto>,
@@ -15,10 +16,9 @@ export const register = async (
   try {
     const userData = omit(req.body, 'password', 'confirmPassword');
     const credentials = pick(req.body, 'email', 'password');
-    console.table(credentials);
-    
-
     const newUser = await userSrv.add(userData, credentials);
+
+    await authSrv.sendEmail(credentials);
     res.json(newUser);
   } catch (err) {
     if (err instanceof UserExistsError) {
@@ -34,7 +34,7 @@ export const register = async (
 };
 
 export const login = async (
-  req: Request,
+  req: TypedRequest<LoginDto>,
   res: Response,
   next: NextFunction,
 ) => {
@@ -65,6 +65,18 @@ export const login = async (
         });
       },
     )(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const confirm = async (
+  req: TypedRequest<ConfirmDto>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const token = req.body.token
   } catch (err) {
     next(err);
   }

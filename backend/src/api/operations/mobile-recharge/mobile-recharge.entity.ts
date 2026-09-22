@@ -1,5 +1,5 @@
 export type MobileRecharge = {
-  id: string;
+  mobileReachargeID: string;
   phoneNumber: string;
   provider: string;
   amount: number;

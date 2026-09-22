@@ -3,7 +3,6 @@ import { model, Schema } from 'mongoose';
 import { Transaction } from './transaction.entity';
 
 const transactionSchema = new Schema<Transaction>({
-  id: String,
   accountID: String,
   date: Date,
   amount: Number,

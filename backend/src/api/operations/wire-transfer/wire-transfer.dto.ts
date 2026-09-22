@@ -2,9 +2,8 @@ import {
   IsNumber,
   IsString,
   Matches,
-  MaxLength,
   Min,
-  MinLength,
+  MinLength
 } from 'class-validator';
 
 export class WireTransferRequestDto {

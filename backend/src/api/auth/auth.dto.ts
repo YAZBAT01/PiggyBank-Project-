@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Matches } from 'class-validator';
+import { IsEmail, IsJWT, IsString, Matches } from 'class-validator';
 
 export class RegisterDto {
   @IsString()
@@ -28,4 +28,10 @@ export class LoginDto {
 
   @IsString()
   password: string;
+}
+
+export class ConfirmDto {
+  @IsString()
+  @IsJWT()
+  token: string
 }
