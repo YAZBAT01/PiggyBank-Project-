@@ -7,6 +7,6 @@ const router = Router();
 
 router.post('/register', validate(RegisterDto, 'body'), register);
 router.post('/login', validate(LoginDto, 'body'), login);
-router.get('/confirmEmail', validate(ConfirmDto, 'query'), confirm)
+router.get('/confirmEmail', validate(ConfirmDto, 'query'), confirm);
 
 export default router;
