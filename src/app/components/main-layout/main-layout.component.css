@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+  background: #f7f8fa;
+  color: #0f1a2e;
+  font-family: 'Outfit', system-ui, sans-serif;
+}
+
+.content {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 2rem;
+}
+
+@media (max-width: 767px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+  }
+}
