@@ -1,12 +1,15 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { omit, pick } from 'lodash';
 import passport from 'passport';
 import { UserExistsError } from '../../errors/user-exists.error';
 import { TypedRequest } from '../../lib/typed-request';
 import userSrv from '../user/user.service';
-import { ConfirmDto, LoginDto, RegisterDto } from './auth.dto';
+import { ChangePswDto, ConfirmDto, LoginDto, RegisterDto } from './auth.dto';
 import authSrv from './auth.service';
+import { EmailConfirmationModel } from '../emailConfirmation/email.confimation.model';
+import { UserIdentityModel } from '../../lib/auth/local/user-identity.model';
+import { NotFoundError } from '../../errors/not-found.error';
 
 export const register = async (
   req: TypedRequest<RegisterDto>,
@@ -18,7 +21,7 @@ export const register = async (
     const credentials = pick(req.body, 'email', 'password');
     const newUser = await userSrv.add(userData, credentials);
 
-    await authSrv.sendEmail(credentials);
+    await authSrv.sendEmail(credentials.email, newUser.userID);
     res.json(newUser);
   } catch (err) {
     if (err instanceof UserExistsError) {
@@ -56,7 +59,6 @@ export const login = async (
           });
           return;
         }
-
         // generare token
         const token = jwt.sign(user, 'my_jwt_secret', { expiresIn: '7 days' });
         res.json({
@@ -71,12 +73,29 @@ export const login = async (
 };
 
 export const confirm = async (
-  req: TypedRequest<ConfirmDto>,
+  req: TypedRequest<any, ConfirmDto, any>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const token = req.body.token
+    const isConfirmed = await authSrv.confirmEmail(req.query);
+    res.json(isConfirmed);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const changePsw = async (
+  req: TypedRequest<any, any, ChangePswDto>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+
+    const isChanged = await authSrv.changePsw(req.user!.userID, req.body);
+    if (!!isChanged) {
+      res.send(200);
+    }
   } catch (err) {
     next(err);
   }

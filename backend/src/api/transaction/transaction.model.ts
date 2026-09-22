@@ -35,4 +35,4 @@ transactionSchema.set('toObject', {
   },
 });
 
-export const UserModel = model<Transaction>('Transaction', transactionSchema);
+export const TransactionModel = model<Transaction>('Transaction', transactionSchema);

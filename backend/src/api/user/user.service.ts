@@ -28,18 +28,8 @@ export class UserService {
         hashedPassword,
       },
     });
-
-    this._setupEmailVerification(newUser.id)
-
     return newUser;
   }
-
-  private async _setupEmailVerification(userID: string){
-
-  }
-
 }
-
-
 
 export default new UserService();
