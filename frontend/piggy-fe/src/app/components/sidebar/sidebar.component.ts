@@ -29,23 +29,23 @@ export class SidebarComponent {
     {
       title: 'Panoramica',
       items: [
-        { label: 'Home', path: '/dashboard', icon: '⌂' },
-        { label: 'Movimenti', path: '/transactions', icon: '↕' },
+        { label: 'Home', path: '/dashboard', icon: 'home' },
+        { label: 'Movimenti', path: '/transactions', icon: 'list' },
       ],
     },
     {
       title: 'Operazioni',
       items: [
-        { label: 'Ricarica Tel.', path: '/recharge', icon: '◎' },
-        { label: 'Bonifico', path: '/transfer', icon: '→' },
+        { label: 'Ricarica Tel.', path: '/recharge', icon: 'smartphone' },
+        { label: 'Bonifico', path: '/transfer', icon: 'arrows' },
       ],
     },
     {
       title: 'Account',
       items: [
-        { label: 'Profilo', path: '/profile', icon: '○' },
-        { label: 'Password', path: '/change-password', icon: '◆' },
-        { label: 'Log Accessi', path: '/access-log', icon: '≡' },
+        { label: 'Profilo', path: '/profile', icon: 'user' },
+        { label: 'Password', path: '/change-password', icon: 'lock' },
+        { label: 'Log Accessi', path: '/access-log', icon: 'history' },
       ],
     },
   ];

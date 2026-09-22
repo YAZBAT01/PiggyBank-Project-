@@ -1,7 +1,7 @@
 <aside class="sidebar">
   <div class="sidebar-brand">
     <a routerLink="/dashboard" class="brand-logo">
-      <span aria-hidden="true">🐷</span>
+      <img src="/piggy.svg" class="brand-icon" />
       <span class="brand-name">PiggyBank</span>
     </a>
     <p class="brand-tagline">Banca Personale</p>
@@ -19,7 +19,9 @@
               ariaCurrentWhenActive="page"
               class="nav-link"
             >
-              <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+             <!-- <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>-->
+              <img [src]="'/' + item.icon + '.svg'" alt="" class="nav-icon" />
               <span>{{ item.label }}</span>
             </a>
           </li>

@@ -1,0 +1,34 @@
+<div class="profile">
+  <h1>Profilo</h1>
+
+  <div class="profile-header">
+    <span class="avatar">{{ initials }}</span>
+    <div class="profile-header-info">
+      <h2>{{ fullName }}</h2>
+      
+    </div>
+  </div>
+
+  <section class="profile-card">
+    <p class="card-title">Dati personali</p>
+    @for (field of personalFields; track field.label) {
+      <div class="field-row">
+        <span class="field-label">{{ field.label }}</span>
+        <span class="field-value">{{ field.value }}</span>
+      </div>
+    }
+  </section>
+
+  <section class="profile-card">
+    <p class="card-title">I tuoi conti</p>
+    @for (account of accounts; track account.name) {
+      <div class="account-row">
+        <div class="account-info">
+          <span class="account-name">{{ account.name }}</span>
+          <span class="account-iban">{{ account.iban }}</span>
+        </div>
+        <span class="account-balance">{{ formatCurrency(account.balance) }}</span>
+      </div>
+    }
+  </section>
+</div>

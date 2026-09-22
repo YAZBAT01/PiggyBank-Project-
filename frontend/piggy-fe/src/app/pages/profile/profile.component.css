@@ -1,0 +1,155 @@
+:host {
+  display: block;
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: #0f1a2e;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 42rem;
+}
+
+h1 {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* ---------- Intestazione ---------- */
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: #1b2e5b;
+  color: #fff;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.profile-header-info h2 {
+  margin: 0 0 0.15rem;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.profile-header-info p {
+  margin: 0;
+  color: #66728a;
+  font-size: 0.875rem;
+}
+
+/* ---------- Card ---------- */
+
+.profile-card {
+  box-sizing: border-box;
+  padding: 0 1.5rem;
+  border: 1px solid #e6e9f0;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.card-title {
+  margin: 0;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #f0f2f7;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+/* ---------- Dati personali ---------- */
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f2f7;
+}
+
+.field-row:last-child {
+  border-bottom: 0;
+}
+
+.field-label {
+  color: #66728a;
+  font-size: 0.875rem;
+}
+
+.field-value {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-align: right;
+}
+
+/* ---------- Conti ---------- */
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f2f7;
+}
+
+.account-row:last-child {
+  border-bottom: 0;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.account-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.account-iban {
+  color: #a3adc2;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.account-balance {
+  flex-shrink: 0;
+  color: #1f8a4c;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ---------- Schermi stretti ---------- */
+
+@media (max-width: 480px) {
+  .field-row,
+  .account-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .field-value {
+    text-align: left;
+  }
+}
