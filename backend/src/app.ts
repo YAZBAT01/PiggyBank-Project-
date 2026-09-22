@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import morgan from 'morgan';
 import apiRouter from './api/routes';
+import './lib/auth/auth-handlers'
 
 const app = express();
 

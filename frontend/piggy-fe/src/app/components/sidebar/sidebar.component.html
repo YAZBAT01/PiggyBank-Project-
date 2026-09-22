@@ -37,4 +37,45 @@
       <span>Esci</span>
     </button>
   </div>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a routerLink="/dashboard" class="brand-logo">
+      <img src="/piggy.svg" class="brand-icon" />
+      <span class="brand-name">PiggyBank</span>
+    </a>
+    <p class="brand-tagline">Banca Personale</p>
+  </div>
+
+  <nav class="sidebar-nav" aria-label="Menu principale">
+    @for (section of sections; track section.title) {
+      <p class="nav-title">{{ section.title }}</p>
+      <ul>
+        @for (item of section.items; track item.path) {
+          <li>
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="active"
+              ariaCurrentWhenActive="page"
+              class="nav-link"
+            >
+             <!-- <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>-->
+              <img [src]="'/' + item.icon + '.svg'" alt="" class="nav-icon" />
+              <span>{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <p class="user-name">{{ currentUser()?.fullname }}</p>
+      <p class="user-email">{{ currentUser()?.email }}</p>
+    </div>
+    <button type="button" class="logout-btn" (click)="logout()">
+      <span>Esci</span>
+    </button>
+  </div>
 </aside>
