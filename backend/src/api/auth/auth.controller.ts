@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { omit, pick } from 'lodash';
 import passport from 'passport';
@@ -7,6 +7,7 @@ import { TypedRequest } from '../../lib/typed-request';
 import userSrv from '../user/user.service';
 import { ConfirmDto, LoginDto, RegisterDto } from './auth.dto';
 import authSrv from './auth.service';
+import { EmailConfirmationModel } from '../emailConfirmation/email.confimation.model';
 
 export const register = async (
   req: TypedRequest<RegisterDto>,
@@ -18,7 +19,7 @@ export const register = async (
     const credentials = pick(req.body, 'email', 'password');
     const newUser = await userSrv.add(userData, credentials);
 
-    await authSrv.sendEmail(credentials);
+    await authSrv.sendEmail(credentials.email, newUser.userID);
     res.json(newUser);
   } catch (err) {
     if (err instanceof UserExistsError) {
@@ -71,12 +72,13 @@ export const login = async (
 };
 
 export const confirm = async (
-  req: TypedRequest<ConfirmDto>,
+  req: TypedRequest<any, ConfirmDto, any>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const token = req.body.token
+    const isConfirmed = await authSrv.confirmEmail(req.query);
+    res.json(isConfirmed);
   } catch (err) {
     next(err);
   }
