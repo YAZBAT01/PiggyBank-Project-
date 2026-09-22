@@ -1,0 +1,203 @@
+.logs-page {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* HEADER */
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 700;
+  color: #0f1a2e;
+}
+
+.page-header p {
+  margin: 10px 0 0;
+  font-size: 18px;
+  color: #718096;
+}
+
+
+/* STATISTICHE */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.stat-card {
+  min-height: 150px;
+  padding: 28px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+  border: 1px solid #dce3ed;
+  border-radius: 18px;
+}
+
+.stat-card span {
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #718096;
+}
+
+.stat-card strong {
+  font-size: 36px;
+  line-height: 1.1;
+  color: #0f1a2e;
+}
+
+.stat-card strong.success {
+  color: #15915f;
+}
+
+.stat-card strong.failure {
+  color: #e52d2d;
+}
+
+
+/* TABELLA */
+
+.table-card {
+  width: 100%;
+  overflow-x: auto;
+
+  background: #ffffff;
+  border: 1px solid #dce3ed;
+  border-radius: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f1f5f9;
+}
+
+th {
+  padding: 20px 28px;
+
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #526784;
+}
+
+td {
+  padding: 20px 28px;
+
+  font-size: 15px;
+  color: #526784;
+
+  border-top: 1px solid #edf1f5;
+}
+
+td strong {
+  color: #0f1a2e;
+}
+
+
+/* ESITO */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 12px;
+
+  border-radius: 999px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-success {
+  color: #16845b;
+  background: #e5f7ee;
+}
+
+.status-failure {
+  color: #d92d2d;
+  background: #fdeaea;
+}
+
+.status-icon {
+  width: 20px;
+  height: 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-success .status-icon {
+  background: #16845b;
+  color: #ffffff;
+}
+
+.status-failure .status-icon {
+  background: #d92d2d;
+  color: #ffffff;
+}
+
+
+/* NESSUN RISULTATO */
+
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header h1 {
+    font-size: 32px;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .page-header h1 {
+    font-size: 28px;
+  }
+
+  .page-header p {
+    font-size: 15px;
+  }
+
+  th,
+  td {
+    padding: 14px 16px;
+  }
+
+}

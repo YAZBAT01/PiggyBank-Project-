@@ -1,0 +1,121 @@
+<section class="logs-page">
+
+  <header class="page-header">
+    <div>
+      <h1>Log Accessi e Operazioni</h1>
+
+      <p>
+        Storico delle operazioni sensibili con IP, data/ora ed esito.
+      </p>
+    </div>
+  </header>
+
+
+  <!-- STATISTICHE -->
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <span>Operazioni totali</span>
+
+      <strong>
+        {{ totalOperations() }}
+      </strong>
+    </div>
+
+
+    <div class="stat-card">
+      <span>Riuscite</span>
+
+      <strong class="success">
+        {{ successfulOperations() }}
+      </strong>
+    </div>
+
+
+    <div class="stat-card">
+      <span>Fallite</span>
+
+      <strong class="failure">
+        {{ failedOperations() }}
+      </strong>
+    </div>
+
+  </div>
+
+
+  <!-- TABELLA -->
+
+  <div class="table-card">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>DATA / ORA</th>
+          <th>OPERAZIONE</th>
+          <th>INDIRIZZO IP</th>
+          <th>ESITO</th>
+        </tr>
+      </thead>
+
+
+      <tbody>
+
+        <tr *ngFor="let log of logs">
+
+          <td>
+            {{ log.date }}
+          </td>
+
+          <td>
+            <strong>
+              {{ log.operation }}
+            </strong>
+          </td>
+
+          <td>
+            {{ log.ipAddress }}
+          </td>
+
+          <td>
+
+            <span
+              class="status"
+              [class.status-success]="log.success"
+              [class.status-failure]="!log.success"
+            >
+
+              <span class="status-icon">
+                {{ log.success ? '✓' : '!' }}
+              </span>
+
+              {{ log.success ? 'Riuscita' : 'Fallita' }}
+
+            </span>
+
+          </td>
+
+        </tr>
+        
+
+
+        <!-- NESSUN RISULTATO -->
+
+        <tr *ngIf="!loading && logs.length === 0">
+
+          <td colspan="4" class="empty">
+            Nessuna operazione registrata.
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+    
+
+  </div>
+  <p>I log vengono conservati per 12 mesi ai sensi del D.Lgs. 231/2007</p>
+
+</section>
